@@ -2,8 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const bodyparser=require('body-parser');
+const bodyParser=require('body-parser');
 const mongoose=require('mongoose');
+const ShortUrl= require('./models/urlshortner');
 // Basic Configuration
 const port = process.env.PORT || 3000;
 //connection on mongodb
@@ -19,15 +20,56 @@ db.on('error',function(err){
 });
 app.use(cors());
 
+
+// support parsing of application/json type post data
+app.use(bodyParser.json());
+
+//support parsing of application/x-www-form-urlencoded post data
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use('/public', express.static(`${process.cwd()}/public`));
+app.use(express.urlencoded({extended:false}));
 
 
-app.get('/',function(req,res){
-  res.json("vikashkumar")
+app.get('/', function(req, res) {
+  res.sendFile(process.cwd() + '/views/index.html');
+});
+
+app.get('/api/shorturl',function(req,res){
+const fulls= new ShortUrl().full;
+const shorts= new ShortUrl().short;
+res.json({original_url:fulls , short_url:shorts});
+
+
+});
+
+//storing in db
+app.post('/api/shorturl',function(req,res){
+  let record=new ShortUrl();
+  record.full=req.body.full;
+  record.short=req.body.short;
+
+  record.save(function(){
+
+      res.redirect('/api/shorturl');
+    
+  });
+
 });
 
 
+app.get('/api/shorturl/:shorturls', async(req,res)=>{
+  const shturl= await ShortUrl.findOne({short:req.params.shorturls});
+  
+  
+  if(shturl==null) {
+  return res.sendStatus(404)
+  }
+  shturl.clicks++;
+  shturl.save();
+   res.redirect(shturl.full);
 
+});
 
 
 
