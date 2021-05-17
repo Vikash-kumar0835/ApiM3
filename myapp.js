@@ -34,7 +34,7 @@ app.use(express.urlencoded({extended:false}));
 app.get('/', function(req, res) {
   res.sendFile(process.cwd() + '/views/index.html');
 });
-
+/*
 app.get('/api/shorturl',function(req,res){
 const fulls= new ShortUrl().full;
 const shorts= new ShortUrl().short;
@@ -42,16 +42,16 @@ res.json({original_url:fulls , short_url:shorts});
 
 
 });
-
+*/
 //storing in db
 app.post('/api/shorturl',function(req,res){
   let record=new ShortUrl();
-  record.full=req.body.full;
-  record.short=req.body.short;
-
+  record.full=req.body.url;
+  //record.short=req.body.short;
+  // console.log(record,req.body,"vik");
   record.save(function(){
 
-      res.redirect('/api/shorturl');
+      res.json({full:record.full,short:record.short});
     
   });
 
@@ -60,7 +60,7 @@ app.post('/api/shorturl',function(req,res){
 
 app.get('/api/shorturl/:shorturls', async(req,res)=>{
   const shturl= await ShortUrl.findOne({short:req.params.shorturls});
-  
+//console.log(shturl,"vikash",req.params.shorturls);
   
   if(shturl==null) {
   return res.sendStatus(404)
