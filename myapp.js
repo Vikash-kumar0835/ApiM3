@@ -50,7 +50,7 @@ app.post('/api/shorturl',function(req,res){
   record.full=req.body.url;
   //record.short=req.body.short;
   // console.log(record,req.body,"vik");
-  if(record.full==="" || record.full===null || record.full!=validUrl)
+  if(record.full==="" || record.full===null)
   {
      return res.send("Please enter valid url");
     
