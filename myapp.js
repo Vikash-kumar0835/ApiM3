@@ -5,6 +5,7 @@ const app = express();
 const bodyParser=require('body-parser');
 const mongoose=require('mongoose');
 const ShortUrl= require('./models/urlshortner');
+const validUrl=require('valid-url');
 // Basic Configuration
 const port = process.env.PORT || 3000;
 //connection on mongodb
@@ -49,11 +50,17 @@ app.post('/api/shorturl',function(req,res){
   record.full=req.body.url;
   //record.short=req.body.short;
   // console.log(record,req.body,"vik");
+  if(record.full==="" || record.full===null || record.full!=validUrl)
+  {
+     return res.send("Please enter valid url");
+    
+  }
   record.save(function(){
 
       res.json({full:record.full,short:record.short});
     
   });
+
 
 });
 
@@ -62,7 +69,7 @@ app.get('/api/shorturl/:shorturls', async(req,res)=>{
   const shturl= await ShortUrl.findOne({short:req.params.shorturls});
 //console.log(shturl,"vikash",req.params.shorturls);
   
-  if(shturl==null) {
+  if(shturl===null) {
   return res.sendStatus(404)
   }
   shturl.clicks++;
